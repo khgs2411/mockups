@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>IsraelTechForce · פותחים את המנעול</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&family=Karantina:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#12090A; --glow:#7A1410; --gx:30%; --gy:50%;
+  --fg:#F4EEE8; --dim:#B9AEA6; --faint:rgba(244,238,232,.14);
+  --mint:#8EF0B4; --go:#2BD46F; --go-ink:#062014; --alarm:#FF6A55;
+  --display:"Karantina","Assistant",sans-serif;
+  --sans:"Assistant",system-ui,sans-serif;
+  --gutter:clamp(16px,4vw,56px);
+  --row:46px;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:18px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--mint);outline-offset:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- the world: fixed behind everything ---------- */
+.glow{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(58vmax 58vmax at var(--gx) var(--gy),var(--glow) 0%,transparent 62%)}
+#gl{position:fixed;inset:0;width:100vw;height:100vh;height:100lvh;z-index:0;display:block;pointer-events:none}
+.grain{position:fixed;inset:0;z-index:35;pointer-events:none;opacity:.08;mix-blend-mode:overlay;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+main{position:relative;z-index:1}
+
+.top{position:fixed;inset-inline:0;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:20px var(--gutter);mix-blend-mode:difference;color:#fff;pointer-events:none}
+.top a{pointer-events:auto;text-decoration:none;display:flex;align-items:center;gap:10px;font-weight:800}
+.top img{width:34px}
+.top .free{font-weight:700;font-size:16px;border-bottom:1.5px solid currentColor;padding-bottom:2px}
+.concept{position:fixed;top:22px;left:50%;translate:-50% 0;z-index:41;font-size:12px;font-weight:700;color:#fff;background:#000;padding:6px 10px;border-radius:4px;opacity:.7}
+
+/* ---------- story ---------- */
+#story{position:relative;height:540vh}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.beat{position:absolute;opacity:0;pointer-events:none}
+.beat.on{pointer-events:auto}
+.kicker{font-size:15px;font-weight:700;letter-spacing:.04em;color:var(--dim);display:flex;gap:10px;align-items:center}
+.kicker b{color:var(--mint);font-weight:800}
+.big{font-family:var(--display);font-weight:700;line-height:.86}
+.beat p{color:var(--dim);font-size:19px;max-width:34ch}
+
+.b0{inset-inline-start:var(--gutter);top:53%;transform:translateY(-50%);width:min(800px,58vw)}
+.b0 p{max-width:none}
+.alarm{display:inline-flex;align-items:center;gap:10px;color:var(--alarm);font-weight:700;font-size:15px}
+.alarm i{width:9px;height:9px;border-radius:50%;background:var(--alarm);animation:pulse 1.1s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.b0 h1{font-size:clamp(60px,6.4vw,112px);margin-block:10px 14px}
+.b0 h1 .promise{color:var(--mint);display:block}
+.b0 .lede{font-size:20px;color:var(--fg);margin-bottom:22px}
+.b0 .lede span{color:var(--dim)}
+
+/* ---------- the combination: two tumblers + one button ---------- */
+.combo{display:flex;flex-wrap:wrap;gap:12px 36px;margin-bottom:20px}
+.tumbler{display:grid;grid-template-columns:auto 22px;grid-template-rows:auto auto;column-gap:10px;min-width:0;outline:none}
+.t-label{grid-column:1/-1;font-size:13px;font-weight:800;letter-spacing:.05em;color:var(--dim);margin-bottom:2px}
+.t-label b{color:var(--mint);margin-inline-end:6px}
+.t-window{position:relative;height:calc(var(--row)*3);overflow:hidden;cursor:ns-resize;min-width:0;
+  -webkit-mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent)}
+.t-window::after{content:"";position:absolute;inset-inline:0;top:var(--row);height:var(--row);border-block:1.5px solid rgba(142,240,180,.5);pointer-events:none}
+.tumbler:focus-visible .t-window::after{border-color:var(--mint);background:rgba(142,240,180,.06)}
+.t-reel{transition:transform .5s cubic-bezier(.2,.9,.25,1.25)}
+.t-opt{height:var(--row);display:flex;align-items:center;padding-inline-end:6px;font-family:var(--display);font-weight:700;font-size:calc(var(--row)*.8);line-height:1;color:var(--dim);opacity:.45;white-space:nowrap;cursor:pointer;transition:color .3s,opacity .3s}
+.t-opt[aria-selected="true"]{color:var(--mint);opacity:1}
+.t-arrows{display:flex;flex-direction:column;justify-content:center;gap:4px}
+.t-arrows button{width:22px;height:22px;border:0;background:none;color:var(--dim);cursor:pointer;padding:0;display:grid;place-items:center;border-radius:4px}
+.t-arrows button:hover{color:var(--mint);background:var(--faint)}
+.t-arrows svg{width:12px;height:12px}
+
+.go{display:inline-flex;align-items:center;gap:14px;background:var(--go);color:var(--go-ink);text-decoration:none;font-weight:800;font-size:21px;padding:18px 26px;border-radius:6px;transition:transform .15s,background .15s}
+.go:hover{background:#45E585;transform:translateY(-2px)}
+.go svg{width:24px;height:24px}
+.go .arr{font-size:22px;transition:transform .15s}
+.go:hover .arr{transform:translateX(-4px)}
+.msg{margin-top:14px;font-size:14px;color:var(--dim);max-width:60ch}
+.msg q{color:var(--fg)}
+.assure{margin-top:6px;font-size:14px;color:var(--dim)}
+.press{position:absolute;bottom:28px;inset-inline-start:var(--gutter);display:flex;gap:26px;align-items:baseline;font-size:14px;color:var(--dim)}
+.press span{font-weight:800;font-size:17px;color:var(--fg);opacity:.75}
+.hint{position:absolute;bottom:28px;inset-inline-end:var(--gutter);font-size:14px;font-weight:700;color:var(--dim);display:flex;gap:10px;align-items:center}
+.hint i{display:block;width:1.5px;height:28px;background:linear-gradient(var(--dim),transparent);animation:drip 1.8s infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+.b1{inset-inline-start:var(--gutter);top:14vh;width:min(560px,44vw)}
+.b2{inset-inline-end:calc(var(--gutter) + 90px);top:50%;transform:translateY(-50%);width:min(520px,40vw)}
+.b3{inset-inline:var(--gutter);bottom:9vh;text-align:center}
+.b3 p{margin-inline:auto;max-width:44ch}
+.b4{inset-inline-start:var(--gutter);top:50%;transform:translateY(-50%);width:min(660px,54vw)}
+.b1 .big,.b2 .big,.b3 .big{font-size:clamp(64px,8vw,136px);margin-block:12px 16px}
+.b2 .price{font-size:clamp(72px,8vw,140px);direction:ltr;unicode-bidi:isolate;display:block}
+.b3 .big{color:var(--mint)}
+.b4 .big{font-size:clamp(72px,9vw,160px);margin-block:12px 28px}
+.stats{display:flex;gap:clamp(20px,3vw,44px);flex-wrap:wrap;margin-bottom:28px}
+.stats div{font-size:15px;color:var(--dim);font-weight:600}
+.stats b{display:block;font-family:var(--display);font-size:clamp(48px,4.6vw,76px);line-height:.9;color:var(--fg);direction:ltr;text-align:right}
+.rail{position:absolute;inset-inline-end:var(--gutter);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;font-size:13px;font-weight:700;color:var(--dim)}
+.rail span{display:flex;align-items:center;gap:10px;opacity:.4;transition:opacity .3s,color .3s}
+.rail span::after{content:"";width:18px;height:1.5px;background:currentColor}
+.rail span.on{opacity:1;color:var(--fg)}
+
+/* ---------- after the story: same world, same voice ---------- */
+.sec{position:relative;padding:clamp(96px,14vw,190px) var(--gutter)}
+.eyebrow{font-size:14px;font-weight:800;letter-spacing:.05em;color:var(--dim);margin-bottom:18px;display:flex;gap:10px}
+.eyebrow b{color:var(--mint)}
+.h2{font-family:var(--display);font-weight:700;font-size:clamp(68px,8.6vw,148px);line-height:.86}
+.h2 em{font-style:normal;color:var(--mint)}
+
+.osher{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.8fr);gap:clamp(32px,6vw,96px);align-items:end}
+.osher figure{position:relative;aspect-ratio:4/5;overflow:hidden;background:#0f6b3c;order:2}
+.osher figure img{width:100%;height:100%;object-fit:cover;object-position:top;filter:grayscale(1) contrast(1.15) brightness(1.05);mix-blend-mode:luminosity}
+.osher figure::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(5,16,11,.9))}
+.osher figcaption{position:absolute;z-index:1;bottom:18px;inset-inline:20px;font-size:14px;color:var(--fg)}
+.osher .quote{font-size:clamp(24px,2.4vw,34px);line-height:1.3;font-weight:600;margin-block:28px 40px;max-width:26ch}
+.figures{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--faint)}
+.figures div{padding-top:16px;font-size:15px;color:var(--dim);font-weight:600}
+.figures b{display:block;font-family:var(--display);font-size:clamp(56px,6vw,100px);line-height:.9;color:var(--fg);direction:ltr;text-align:right}
+.seen{margin-top:28px;font-size:14px;color:var(--dim)}
+.seen span{font-weight:800;color:var(--fg);opacity:.8;margin-inline-start:14px}
+
+.cases-wrap{max-width:62%}
+.cases{border-top:1px solid var(--faint);margin-top:48px}
+.case{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr) auto;gap:24px;align-items:center;padding-block:24px;border:0;border-bottom:1px solid var(--faint);background:none;width:100%;text-align:start;cursor:pointer}
+.case .name{font-family:var(--display);font-weight:700;font-size:clamp(52px,5.6vw,96px);line-height:.9;transition:color .25s,transform .25s}
+.case .says{font-size:16px;color:var(--dim)}
+.case .says q{display:block;font-weight:800;color:var(--fg);font-size:clamp(17px,1.4vw,20px);margin-bottom:4px}
+.case .mine{font-weight:800;color:var(--mint);white-space:nowrap;opacity:.6;transition:opacity .25s,transform .25s}
+.case:hover .name,.case:focus-visible .name{color:var(--tint,var(--mint));transform:translateX(-8px)}
+.case:hover .mine,.case:focus-visible .mine{opacity:1;transform:translateX(-6px)}
+
+.voices{position:relative;padding-block:clamp(80px,10vw,140px);overflow:hidden}
+.voices .eyebrow{padding-inline:var(--gutter)}
+.track{display:flex;width:max-content;direction:ltr;animation:slide 80s linear infinite}
+.voices:hover .track{animation-play-state:paused}
+@keyframes slide{to{transform:translateX(-50%)}}
+.v{direction:rtl;width:min(560px,82vw);padding-inline:clamp(24px,3vw,48px);border-inline-start:1px solid var(--faint)}
+.v p{font-family:var(--display);font-weight:400;font-size:clamp(34px,3vw,46px);line-height:1;margin-bottom:20px}
+.v p::before{content:"״";color:var(--mint);margin-inline-end:4px}
+.v .who{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--dim)}
+.v .who img{width:40px;height:40px;border-radius:50%;object-fit:cover;filter:grayscale(1)}
+.v .who b{color:var(--fg);display:block}
+
+.faq{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(32px,6vw,96px)}
+.faq aside p{color:var(--dim);margin-block:22px}
+.faq aside a{color:var(--mint);font-weight:800;text-decoration:none}
+details{border-top:1px solid var(--faint);padding-block:22px}
+details:last-child{border-bottom:1px solid var(--faint)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:20px;font-weight:800;font-size:clamp(20px,1.8vw,24px)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-weight:400;font-size:28px;line-height:1;color:var(--mint);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--dim);margin-top:12px;max-width:60ch}
+
+.final{padding-bottom:48px}
+.final .h2{font-size:clamp(90px,13vw,230px);margin-bottom:40px}
+.final-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:clamp(32px,6vw,96px);align-items:end}
+.call{border-top:1px solid var(--faint);padding-top:22px}
+.call h3{font-size:20px;margin-bottom:4px}
+.call p{color:var(--dim);font-size:15px;margin-bottom:16px}
+.call form{display:flex;gap:8px}
+.call input{flex:1;min-width:0;background:transparent;border:0;border-bottom:1.5px solid rgba(244,238,232,.3);padding:12px 2px;font-size:18px}
+.call input::placeholder{color:rgba(244,238,232,.4)}
+.call button{background:var(--fg);color:#0a0a0a;border:0;border-radius:6px;font-weight:800;padding:0 18px;cursor:pointer}
+.foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-top:clamp(64px,9vw,120px);font-size:14px;color:var(--dim)}
+.foot a{text-decoration:none;margin-inline-start:18px}
+
+.dock{position:fixed;inset-inline:12px;bottom:12px;z-index:45;display:none;transform:translateY(140%);transition:transform .3s}
+.dock.show{transform:none}
+.dock .go{width:100%;justify-content:center;font-size:18px;padding:16px;box-shadow:0 14px 30px -12px rgba(0,0,0,.7)}
+
+@media (max-height:820px) and (min-width:861px){.b0 .msg{display:none}.b0 h1{font-size:clamp(56px,5.6vw,96px)}}
+@media (max-width:860px){
+  :root{--row:38px}
+  .b0{width:auto;inset-inline:var(--gutter);top:auto;bottom:max(64px,8svh);transform:none}
+  .b0 h1{font-size:clamp(56px,15vw,88px);margin-block:8px 10px}
+  .b0 .lede{font-size:17px;margin-bottom:12px}
+  .combo{flex-wrap:nowrap;gap:16px;margin-bottom:14px}
+  .tumbler:last-child{flex:1}
+  .t-opt{overflow:hidden;text-overflow:ellipsis}
+  .go{width:100%;justify-content:center;font-size:19px;padding:16px}
+  .msg,.press,.assure{display:none}
+  .hint{inset-inline:0;justify-content:center;bottom:16px}
+  .b1,.b2,.b4{inset-inline:var(--gutter);width:auto;top:auto;bottom:12svh;transform:none}
+  .b3{bottom:12svh}
+  .b1 .big,.b2 .big,.b3 .big{font-size:clamp(56px,15vw,84px)}
+  .b2 .price{font-size:clamp(64px,19vw,110px)}
+  .b4 .big{font-size:clamp(60px,16vw,90px);margin-bottom:18px}
+  .stats{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:12px 20px}
+  .stats b{font-size:40px}.stats div{font-size:13px}
+  .rail,.concept{display:none}
+  .osher,.faq,.final-grid{grid-template-columns:1fr}
+  .osher figure{order:0}
+  .cases-wrap{max-width:none}
+  .case{grid-template-columns:1fr auto}
+  .case .says{grid-column:1/-1;grid-row:2}
+  .dock{display:block}
+}
+@media (prefers-reduced-motion:reduce){.track{animation:none;flex-wrap:wrap;width:auto}.alarm i,.hint i{animation:none}.t-reel{transition:none}html{scroll-behavior:auto}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.4.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></symbol>
+  <symbol id="up" viewBox="0 0 12 12"><path d="M2 8l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="down" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+</svg>
+
+<div class="glow" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="concept">קונספט · עיצוב מחדש</div>
+
+<header class="top">
+  <a href="#story"><img src="https://www.israeltechforce.com/images/brand/logo-white-320.webp" alt="">IsraelTechForce</a>
+  <a class="free" href="#story">בדיקה חינם</a>
+</header>
+
+<template id="combo-tpl">
+  <div class="combo">
+    <div class="tumbler" data-key="p" role="listbox" tabindex="0">
+      <span class="t-label"><b>01</b>איפה הבעיה</span>
+      <div class="t-window"><div class="t-reel"></div></div>
+      <div class="t-arrows"><button type="button" data-step="-1" aria-label="הקודם" tabindex="-1"><svg><use href="#up"/></svg></button><button type="button" data-step="1" aria-label="הבא" tabindex="-1"><svg><use href="#down"/></svg></button></div>
+    </div>
+    <div class="tumbler" data-key="s" role="listbox" tabindex="0">
+      <span class="t-label"><b>02</b>מה קרה</span>
+      <div class="t-window"><div class="t-reel"></div></div>
+      <div class="t-arrows"><button type="button" data-step="-1" aria-label="הקודם" tabindex="-1"><svg><use href="#up"/></svg></button><button type="button" data-step="1" aria-label="הבא" tabindex="-1"><svg><use href="#down"/></svg></button></div>
+    </div>
+  </div>
+</template>
+
+<main>
+<section id="story" aria-label="איך משחררים חשבון">
+  <div class="stage">
+    <div class="beat b0 on" data-beat="0">
+      <span class="alarm"><i></i>חסום, מושבת או נפרץ? כל שעה קובעת</span>
+      <h1 class="big">החשבון נעול.<span class="promise">אנחנו פותחים אותו.</span></h1>
+      <p class="lede">לא הצלחנו לשחרר? לא שילמת שקל. <span>אבחון חינם תוך 10 דקות.</span></p>
+      <div data-cta>
+        <div data-combo></div>
+        <a class="go" target="_blank" rel="noopener" id="heroGo"><svg aria-hidden="true"><use href="#wa"/></svg>שלחו לאושר בוואטסאפ<span class="arr" aria-hidden="true">←</span></a>
+        <p class="msg">ההודעה שתישלח: <q class="text"></q></p>
+        <p class="assure">בלי תשלום מראש · אחריות 24 שעות · בלי למסור סיסמאות</p>
+      </div>
+    </div>
+    <div class="press beat on" data-beat="0" aria-label="סוקרנו ב">סוקרנו ב־<span>mako N12</span><span>ynet</span><span>ice</span><span>ערוץ הכלכלה</span></div>
+    <div class="hint beat on" data-beat="0" aria-hidden="true"><i></i>גללו כדי לפתוח את המנעול</div>
+
+    <div class="beat b1" data-beat="1">
+      <p class="kicker"><b>01</b>10 דקות</p>
+      <h2 class="big">אבחון חינם.</h2>
+      <p>שולחים את המקרה בוואטסאפ. אושר בודק היתכנות ואומר בכנות מה הסיכוי, גם כשהתשובה היא שקשה.</p>
+    </div>
+    <div class="beat b2" data-beat="2">
+      <p class="kicker"><b>02</b>בלי מקדמה</p>
+      <h2 class="big"><span class="price">₪500–3,000</span>מחיר סופי, קבוע מראש.</h2>
+      <p>לפי מורכבות המקרה. מה שסוכם הוא מה שמשלמים, בלי הפתעות בדרך.</p>
+    </div>
+    <div class="beat b3" data-beat="3">
+      <p class="kicker" style="justify-content:center"><b>03</b>שחרור</p>
+      <h2 class="big">נכנסים. בודקים. ורק אז משלמים.</h2>
+      <p>מרגע השחרור יש לכם אחריות של 24 שעות מפני נעילה חוזרת.</p>
+    </div>
+    <div class="beat b4" data-beat="4">
+      <h2 class="big">לא שוחרר?<br>לא שילמת.</h2>
+      <div class="stats">
+        <div><b>2,500+</b>חשבונות שוחזרו</div>
+        <div><b>95%+</b>שיעור הצלחה</div>
+        <div><b>4.9</b>דירוג לקוחות</div>
+        <div><b>24h</b>אחריות</div>
+      </div>
+      <a class="go" href="#story"><svg aria-hidden="true"><use href="#wa"/></svg>שלחו את המקרה שלכם<span class="arr" aria-hidden="true">←</span></a>
+    </div>
+
+    <nav class="rail" aria-hidden="true"><span data-r="0">נעול</span><span data-r="1">אבחון</span><span data-r="2">מחיר</span><span data-r="3">שחרור</span></nav>
+  </div>
+</section>
+
+<!-- each section tells the lock where to stand: x,y,scale,turn (wide | narrow) -->
+<section class="sec" data-wide="0,5.5,.7,0" data-narrow="0,6,.4,0">
+  <div class="osher">
+    <div>
+      <p class="eyebrow"><b>04</b>מי פותח את המנעול</p>
+      <h2 class="h2">אושר רווח.</h2>
+      <p class="quote">מתמחה במקרים שמטא אומרים עליהם שאין סיכוי. אתם מדברים איתו ישירות, מהאבחון ועד שאתם בפנים.</p>
+      <div class="figures">
+        <div><b>2,500+</b>חשבונות שוחזרו</div>
+        <div><b>95%+</b>שיעור הצלחה</div>
+        <div><b>4.9</b>מתוך 5 בדירוג</div>
+      </div>
+      <p class="seen">כפי שסוקרנו ב־<span>mako N12</span><span>ynet</span><span>ice</span><span>ערוץ הכלכלה</span></p>
+    </div>
+    <figure>
+      <img src="https://www.israeltechforce.com/images/brand/osher-stand-800.webp" alt="אושר רווח, מייסד IsraelTechForce">
+      <figcaption>נתניה · משחזר חשבונות מאז 2020</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="sec" data-wide="-3.1,-.75,.88,.65" data-narrow="0,6,.4,0">
+  <div class="cases-wrap">
+    <p class="eyebrow"><b>05</b>מקרים שאנחנו פותרים</p>
+    <h2 class="h2">מזהים את ההודעה?</h2>
+    <div class="cases">
+      <button class="case" data-p="וואטסאפ" data-s="המספר נחסם" data-tint="#25D366"><span class="name">וואטסאפ</span><span class="says"><q>המספר הזה חסום מלהשתמש בוואטסאפ</q>חסימה זמנית או קבועה, או חטיפה עם אימות דו־שלבי.</span><span class="mine">זה המקרה שלי ←</span></button>
+      <button class="case" data-p="אינסטגרם" data-s="החשבון נפרץ" data-tint="#E1306C"><span class="name">אינסטגרם</span><span class="says"><q>כתובת האימייל בחשבון שלך שונתה</q>הסיסמה והמייל הוחלפו, או שהחשבון הושבת.</span><span class="mine">זה המקרה שלי ←</span></button>
+      <button class="case" data-p="פייסבוק" data-s="החשבון הושבת" data-tint="#3B82F6"><span class="name">פייסבוק</span><span class="says"><q>השבתנו את החשבון שלך</q>גם כשמטא סימנה את ההחלטה כסופית.</span><span class="mine">זה המקרה שלי ←</span></button>
+      <button class="case" data-p="מנהל מודעות" data-s="חשבון המודעות הושבת" data-tint="#F5B83D"><span class="name">מנהל מודעות</span><span class="says"><q>חשבון המודעות שלך הוגבל</q>קמפיינים נעצרו, תשלום נדחה, גישה ל־BM אבדה.</span><span class="mine">זה המקרה שלי ←</span></button>
+    </div>
+  </div>
+</section>
+
+<section class="voices" aria-label="המלצות" data-wide="0,1.15,.5,-.3" data-narrow="0,6,.4,0">
+  <p class="eyebrow"><b>06</b>הם כבר חזרו לעבוד</p>
+  <div class="track" id="track">
+    <div class="v"><p>פרצו לי לאינסטגרם ולפייסבוק, ראיתי את מפעל חיי קורס. אושר בא, הרגיע וסידר.</p><div class="who"><img src="https://www.israeltechforce.com/images/hani.jpg" alt=""><span><b>חני אסור</b>יוצרת תוכן קולינרי</span></div></div>
+    <div class="v"><p>ירד עלינו המסך מסיבה הזויה לחלוטין. אושר אבחן מהר והחזיר אותנו לפעילות אחרי יומיים.</p><div class="who"><img src="https://www.israeltechforce.com/images/yeshatid.jpg" alt=""><span><b>יש עתיד</b>המטה לקהילה הערבית</span></div></div>
+    <div class="v"><p>פרצו לי אנשים מטורקיה. המצב היה כמעט בלתי הפיך, ואושר החזיר לי את החשבון בנחת וברוגע.</p><div class="who"><img src="https://www.israeltechforce.com/images/ofira.jpg" alt=""><span><b>אופירה יחיא</b>קונדיטורית ויוצרת תוכן</span></div></div>
+    <div class="v"><p>אחרי שנעקצתי על ידי חברה אחרת, אושר החזיר לי את העסק לחיים. ממש ככה.</p><div class="who"><img src="https://www.israeltechforce.com/images/gal.jpg" alt=""><span><b>גל נמני</b>מנכ״לית Go-Tech</span></div></div>
+    <div class="v"><p>מתחילת המלחמה אושר מלווה אותי בכל צרה. רק תנו לו את ההזדמנות והוא יסדר.</p><div class="who"><img src="https://www.israeltechforce.com/images/matanel.jpg" alt=""><span><b>מתנאל ליין</b>יוצר תוכן</span></div></div>
+    <div class="v"><p>תמיכה מעולה בפתרון בעיות פרסום. מקצועי, זמין ועוזר בכל בעיה.</p><div class="who"><img src="https://www.israeltechforce.com/images/lierac.jpg" alt=""><span><b>ליראק ישראל</b>מותג טיפוח</span></div></div>
+  </div>
+</section>
+
+<section class="sec faq" id="faq" data-wide="3.3,-2.35,.55,-.5" data-narrow="0,6,.4,0">
+  <aside>
+    <p class="eyebrow"><b>07</b>שאלות נפוצות</p>
+    <h2 class="h2">לפני שאתם שולחים.</h2>
+    <p>לא מצאתם תשובה? שאלו ישירות, זה חלק מהאבחון החינמי.</p>
+    <a href="#story">שאלו את אושר בוואטסאפ ←</a>
+  </aside>
+  <div>
+    <details open><summary>החשבון נחסם כבר מזמן. יש בכלל סיכוי?</summary><p>ברוב המקרים כן. גם חשבונות שנחסמו לפני שבועות או חודשים, וגם מקרים שמטא סימנה כסופיים. ככל שפונים מוקדם יותר קל יותר, אבל זמן שעבר לא פוסל.</p></details>
+    <details><summary>כמה זה עולה?</summary><p>מ־₪500 לבעיות פשוטות ועד ₪2,500–₪3,000 למקרים מורכבים, לא כולל מע״מ. המחיר נקבע מראש ומשולם רק אחרי הצלחה.</p></details>
+    <details><summary>צריך למסור סיסמה?</summary><p>לא. הטיפול נעשה בלי סיסמאות ובלי חשיפת מידע אישי מיותר.</p></details>
+    <details><summary>כמה זמן זה לוקח?</summary><p>תלוי בסוג הבעיה. חסימות זמניות נפתרות מהר; פריצות וחסימות קבועות לוקחות יותר. מקבלים עדכון לאורך כל הדרך.</p></details>
+    <details><summary>זה דיסקרטי?</summary><p>כן. הפרטים משמשים לטיפול בלבד, לא נמכרים ולא מועברים, ושום תיעוד לא עולה לרשת בלי אישור מפורש.</p></details>
+  </div>
+</section>
+
+<section class="sec final" id="final" data-wide="-2.8,.55,.72,.5" data-narrow="0,6,.4,0">
+  <h2 class="h2">כל שעה<br><em>קובעת.</em></h2>
+  <div class="final-grid">
+    <div data-cta>
+      <div data-combo></div>
+      <a class="go" target="_blank" rel="noopener" id="finalGo"><svg aria-hidden="true"><use href="#wa"/></svg>שלחו לאושר בוואטסאפ<span class="arr" aria-hidden="true">←</span></a>
+      <p class="msg">ההודעה שתישלח: <q class="text"></q></p>
+    </div>
+    <div class="call">
+      <h3>מעדיפים שיחה?</h3>
+      <p>השאירו מספר ונחזור אליכם תוך דקות. א׳–ו׳, 09:00–16:00.</p>
+      <form onsubmit="event.preventDefault();this.querySelector('button').textContent='נחזור אליך ✓'">
+        <label class="sr" for="ph">מספר טלפון</label>
+        <input id="ph" type="tel" inputmode="tel" placeholder="מספר טלפון">
+        <button type="submit">תתקשרו אליי</button>
+      </form>
+    </div>
+  </div>
+  <div class="foot"><span>© 2026 IsraelTechForce · נתניה</span><span><a href="#">מדיניות פרטיות</a><a href="#">נגישות</a><a href="#">תנאי שימוש</a></span></div>
+</section>
+</main>
+
+<div class="dock" id="dock"><a class="go" href="#story"><svg aria-hidden="true"><use href="#wa"/></svg>אבחון חינם בוואטסאפ</a></div>
+
+<script>
+/* ===== the combination (CTA state), works without WebGL ===== */
+const WA="972509823235";
+const CASES={
+  "וואטסאפ":["המספר נחסם","חסימה זמנית","חטיפה עם אימות דו־שלבי","משהו אחר"],
+  "אינסטגרם":["החשבון נפרץ","הסיסמה והמייל הוחלפו","החשבון הושבת","משהו אחר"],
+  "פייסבוק":["החשבון הושבת","החשבון נפרץ","אין גישה לעמוד העסקי","משהו אחר"],
+  "מנהל מודעות":["חשבון המודעות הושבת","ה־BM הוגבל","אמצעי התשלום נדחה","משהו אחר"]
+};
+const PLATS=Object.keys(CASES);
+const cta={p:0,s:0};
+const listFor=k=>k==="p"?PLATS:CASES[PLATS[cta.p]];
+let uid=0;
+
+document.querySelectorAll("[data-combo]").forEach(slot=>{
+  slot.replaceWith(document.getElementById("combo-tpl").content.cloneNode(true));
+});
+document.querySelectorAll(".tumbler").forEach(t=>{
+  t.id="tm"+(uid++);
+  t.setAttribute("aria-label",t.querySelector(".t-label").textContent.replace(/^\d+/,""));
+  t.addEventListener("keydown",e=>{
+    const k={ArrowUp:-1,ArrowDown:1}[e.key];
+    if(k){e.preventDefault();step(t.dataset.key,k)}
+    if(e.key==="Home"){e.preventDefault();set(t.dataset.key,0)}
+    if(e.key==="End"){e.preventDefault();set(t.dataset.key,listFor(t.dataset.key).length-1)}
+  });
+  t.querySelectorAll("[data-step]").forEach(b=>b.addEventListener("click",()=>step(t.dataset.key,+b.dataset.step)));
+  let last=0;
+  t.querySelector(".t-window").addEventListener("wheel",e=>{
+    e.preventDefault();const now=performance.now();if(now-last<140)return;last=now;step(t.dataset.key,Math.sign(e.deltaY));
+  },{passive:false});
+});
+function step(k,d){const n=listFor(k).length;set(k,(cta[k]+d+n)%n)}
+function set(k,i){
+  if(cta[k]===i)return;
+  cta[k]=i;if(k==="p")cta.s=0;
+  render();window.lockTick&&window.lockTick();
+}
+function render(){
+  const plat=PLATS[cta.p],sym=CASES[plat][cta.s];
+  const what=sym!=="משהו אחר"?`: ${sym}`:"";
+  const msg=`היי אושר, יש לי בעיה ב${plat}${what}. אשמח לאבחון.`;
+  document.querySelectorAll(".tumbler").forEach(t=>{
+    const k=t.dataset.key,list=listFor(k),reel=t.querySelector(".t-reel");
+    if(reel.dataset.sig!==list.join("|")){
+      reel.dataset.sig=list.join("|");
+      reel.replaceChildren(...list.map((txt,i)=>{const o=document.createElement("div");o.className="t-opt";o.role="option";o.id=`${t.id}-${i}`;o.textContent=txt;o.onclick=()=>set(k,i);return o}));
+    }
+    [...reel.children].forEach((o,i)=>o.setAttribute("aria-selected",i===cta[k]));
+    reel.style.transform=`translateY(calc(var(--row) * ${1-cta[k]}))`;
+    t.setAttribute("aria-activedescendant",`${t.id}-${cta[k]}`);
+  });
+  document.querySelectorAll("[data-cta]").forEach(el=>{
+    el.querySelector(".go").href=`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
+    el.querySelector(".text").textContent=msg;
+  });
+}
+render();
+
+document.querySelectorAll(".case").forEach(b=>{
+  b.addEventListener("click",()=>{cta.p=PLATS.indexOf(b.dataset.p);cta.s=CASES[b.dataset.p].indexOf(b.dataset.s);render();scrollTo({top:0,behavior:"smooth"})});
+  const on=()=>{b.style.setProperty("--tint",b.dataset.tint);window.lockTint&&window.lockTint(b.dataset.tint)};
+  const off=()=>window.lockTint&&window.lockTint(null);
+  b.addEventListener("mouseenter",on);b.addEventListener("focus",on);
+  b.addEventListener("mouseleave",off);b.addEventListener("blur",off);
+});
+const track=document.getElementById("track");track.append(...[...track.children].map(n=>{const c=n.cloneNode(true);c.setAttribute("aria-hidden","true");return c}));
+
+/* ===== one damped scroll value drives text and scene ===== */
+const story=document.getElementById("story");
+const world=window.world={raw:scrollY,cur:scrollY,p:0,storyEnd:0};
+const beats=[...document.querySelectorAll("[data-beat]")];
+const rail=[...document.querySelectorAll("[data-r]")];
+const WINDOWS=[[-1,0,.04,.10],[.12,.16,.33,.37],[.38,.42,.54,.58],[.60,.65,.76,.80],[.82,.87,9,9]];
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function measure(){world.storyEnd=story.offsetTop+story.offsetHeight-innerHeight}
+addEventListener("resize",measure);measure();
+addEventListener("scroll",()=>{world.raw=scrollY},{passive:true});
+const dock=document.getElementById("dock"),fin=document.getElementById("final");
+function tick(){
+  world.cur+=(world.raw-world.cur)*(reduce?1:.1);
+  if(Math.abs(world.raw-world.cur)<.3)world.cur=world.raw;
+  const p=world.p=clamp((world.cur-story.offsetTop)/(world.storyEnd-story.offsetTop),0,1);
+  beats.forEach(el=>{
+    const [a,b,c,d]=WINDOWS[+el.dataset.beat];
+    const o=p<a||p>d?0:p<b?(p-a)/(b-a):p>c?1-(p-c)/(d-c):1;
+    el.style.opacity=o.toFixed(3);
+    el.classList.toggle("on",o>.5);
+    el.style.translate=`0 ${((1-o)*24*(p<b?1:-1)).toFixed(1)}px`;
+  });
+  const stepIdx=p<.12?0:p<.38?1:p<.60?2:3;
+  rail.forEach((r,i)=>r.classList.toggle("on",i===stepIdx));
+  dock.classList.toggle("show",scrollY>innerHeight*.5&&fin.getBoundingClientRect().top>innerHeight*.6);
+  requestAnimationFrame(tick);
+}
+tick();
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import {RoomEnvironment} from "three/addons/environments/RoomEnvironment.js";
+
+const canvas=document.getElementById("gl");
+let renderer;
+try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true})}catch(e){canvas.remove();throw e}
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.05;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+
+const scene=new THREE.Scene();
+scene.environment=new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(),.04).texture;
+const camera=new THREE.PerspectiveCamera(32,1,.1,100);camera.position.set(0,0,11);
+
+const steel=new THREE.MeshPhysicalMaterial({color:0x4a4d55,metalness:1,roughness:.34,clearcoat:.7,clearcoatRoughness:.2});
+const chrome=new THREE.MeshPhysicalMaterial({color:0xdadbe0,metalness:1,roughness:.1});
+const brass=new THREE.MeshPhysicalMaterial({color:0xc9a04f,metalness:1,roughness:.2});
+const hole=new THREE.MeshStandardMaterial({color:0x040404,roughness:.95});
+
+function rounded(w,h,r){const s=new THREE.Shape(),x=-w/2,y=-h/2;
+  s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s}
+const lock=new THREE.Group();scene.add(lock);
+const bodyGeo=new THREE.ExtrudeGeometry(rounded(2.4,2,.34),{depth:.8,bevelEnabled:true,bevelThickness:.1,bevelSize:.1,bevelSegments:8,curveSegments:24});
+bodyGeo.center();
+const body=new THREE.Mesh(bodyGeo,steel);body.position.y=-.35;lock.add(body);
+const FRONT=.5;
+const kh=new THREE.Shape();kh.absarc(0,.12,.17,0,Math.PI*2);
+const khMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(kh,{depth:.03,bevelEnabled:false,curveSegments:32}),hole);khMesh.position.set(0,-.25,FRONT-.01);lock.add(khMesh);
+const slot=new THREE.Mesh(new THREE.BoxGeometry(.14,.42,.03),hole);slot.position.set(0,-.38,FRONT+.005);lock.add(slot);
+const band=new THREE.Mesh(new THREE.BoxGeometry(2.62,.06,1.02),chrome);band.position.y=.42;lock.add(band);
+const band2=band.clone();band2.position.y=-1.12;lock.add(band2);
+
+const R=.74,T=.17,LEG=.95;
+const pivot=new THREE.Group();pivot.position.set(R,.35,0);lock.add(pivot);
+const shackle=new THREE.Group();shackle.position.x=-R;pivot.add(shackle);
+const arch=new THREE.Mesh(new THREE.TorusGeometry(R,T,32,96,Math.PI),chrome);arch.position.y=LEG;shackle.add(arch);
+const legGeo=new THREE.CylinderGeometry(T,T,LEG+.5,32);
+const legL=new THREE.Mesh(legGeo,chrome);legL.position.set(-R,(LEG-.5)/2,0);shackle.add(legL);
+const legR=new THREE.Mesh(legGeo,chrome);legR.position.set(R,(LEG-.5)/2,0);shackle.add(legR);
+
+const key=new THREE.Group();lock.add(key);
+const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,1.5,24),brass);shaft.rotation.x=Math.PI/2;shaft.position.z=.75;key.add(shaft);
+const bow=new THREE.Mesh(new THREE.TorusGeometry(.34,.085,24,64),brass);bow.position.z=1.84;bow.rotation.y=Math.PI/2;key.add(bow);
+[[.18,.12],[.38,.18],[.58,.1]].forEach(([z,h])=>{const t=new THREE.Mesh(new THREE.BoxGeometry(.05,h,.12),brass);t.position.set(0,-.055-h/2,z);key.add(t)});
+key.position.set(0,-.13,6);key.visible=false;
+
+const ringMat=new THREE.MeshBasicMaterial({color:0xbaffd6,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+const ring=new THREE.Mesh(new THREE.TorusGeometry(1.95,.012,8,160),ringMat);ring.rotation.x=Math.PI/2;lock.add(ring);
+const discMat=new THREE.MeshBasicMaterial({color:0x8ef0b4,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+const disc=new THREE.Mesh(new THREE.CircleGeometry(1.95,96),discMat);disc.rotation.x=-Math.PI/2;lock.add(disc);
+
+const N=900,pos=new Float32Array(N*3),seed=[];
+for(let i=0;i<N;i++){seed.push({u:Math.random()*2-1,a:Math.random()*Math.PI*2,r:2.4+Math.random()*3.6,ph:Math.random()*6.28,sp:.2+Math.random()*.8})}
+const dustGeo=new THREE.BufferGeometry();dustGeo.setAttribute("position",new THREE.BufferAttribute(pos,3));
+const dustMat=new THREE.PointsMaterial({size:.035,color:0xff5a45,transparent:true,opacity:.85,depthWrite:false,blending:THREE.AdditiveBlending});
+scene.add(new THREE.Points(dustGeo,dustMat));
+
+scene.add(new THREE.HemisphereLight(0xffffff,0x200808,.35));
+const keyL=new THREE.DirectionalLight(0xfff1e6,2.6);keyL.position.set(3,4,6);scene.add(keyL);
+const fill=new THREE.DirectionalLight(0xffe2d6,1.1);fill.position.set(-5,1,5);scene.add(fill);
+const rimA=new THREE.PointLight(0xff3322,60,30);rimA.position.set(-4,3,-3);scene.add(rimA);
+const rimB=new THREE.PointLight(0xff3322,40,30);rimB.position.set(4,-3,-2.5);scene.add(rimB);
+
+/* ---- choreography ---- */
+const range=(p,a,b)=>Math.min(1,Math.max(0,(p-a)/(b-a)));
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const soft=t=>t*t*(3-2*t);
+const back=t=>1+2.2*Math.pow(t-1,3)+1.2*Math.pow(t-1,2);
+const lerp=(a,b,t)=>a+(b-a)*t;
+// story poses: hero, scan, key, release, close (x,y,scale,turn)
+const STOPS=[0,.14,.37,.58,.80,1];
+const STORY={
+  wide:[[-2.35,0,1,.5],[-1.9,-.5,1.08,-.25],[-2.1,-.6,1.05,-.6],[2.75,-.1,1.05,.45],[0,.35,.92,-.15],[-2.5,-.3,.85,-.5]],
+  narrow:[[0,1.95,.46,.5],[0,1.75,.5,-.25],[0,1.7,.5,-.6],[0,1.7,.5,.45],[0,1.55,.46,-.15],[0,1.95,.42,-.5]]
+};
+const mix=(A,B,t)=>A.map((v,i)=>lerp(v,B[i],t));
+function storyPose(p,set){for(let i=0;i<STOPS.length-1;i++){if(p<=STOPS[i+1]){const t=i===0?soft(range(p,0,STOPS[1])):ease(range(p,STOPS[i],STOPS[i+1]));return mix(set[i],set[i+1],t)}}return set[set.length-1]}
+
+let narrow=false,anchors=[];
+const sections=[...document.querySelectorAll("[data-wide]")];
+function measure(){
+  const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();narrow=w<860;
+  anchors=sections.map(el=>{const r=el.getBoundingClientRect();return{y:r.top+scrollY+r.height/2-h/2,pose:el.dataset[narrow?"narrow":"wide"].split(",").map(Number)}});
+}
+addEventListener("resize",measure);addEventListener("load",measure);measure();
+function pagePose(){
+  const set=STORY[narrow?"narrow":"wide"],w=window.world;
+  if(w.cur<=w.storyEnd)return storyPose(w.p,set);
+  const list=[{y:w.storyEnd,pose:set[set.length-1]},...anchors];
+  for(let i=0;i<list.length-1;i++){if(w.cur<=list[i+1].y){return mix(list[i].pose,list[i+1].pose,ease(range(w.cur,list[i].y,list[i+1].y)))}}
+  return list[list.length-1].pose;
+}
+
+/* ---- reactions from the page ---- */
+let tickT=-9;window.lockTick=()=>{tickT=clock.elapsedTime};
+const tint=new THREE.Color(),noTint=new THREE.Color();let tintOn=0,tintTarget=0;
+window.lockTint=hex=>{if(hex){tint.set(hex);tintTarget=1}else tintTarget=0};
+
+const RED=new THREE.Color(0xff3322),GREEN=new THREE.Color(0x2fe089),DRED=new THREE.Color(0xff5a45),DGREEN=new THREE.Color(0x8ef0b4);
+const BG0=new THREE.Color(0x12090a),BG1=new THREE.Color(0x05100b),GL0=new THREE.Color(0x7a1410),GL1=new THREE.Color(0x0f5c35);
+const c=new THREE.Color(),proj=new THREE.Vector3(),root=document.documentElement.style;
+
+const clock=new THREE.Clock();
+function frame(){
+  requestAnimationFrame(frame);
+  const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime,p=window.world.p;
+  const released=range(p,.60,.70);
+  const [x,y,s,ry]=pagePose();
+
+  lock.position.set(x,y+Math.sin(t*.8)*.06,0);
+  lock.scale.setScalar(s);
+  const since=t-tickT,wig=since<1.2?Math.exp(-since*5)*Math.sin(since*42):0;
+  const shake=(1-released)*(p<.14?1:.35)*Math.sin(t*38)*Math.max(0,Math.sin(t*1.7))*.012;
+  lock.rotation.set(Math.sin(t*.6)*.04+.08,ry+Math.sin(t*.4)*.05+wig*.12,shake+wig*.05);
+
+  const scan=range(p,.12,.38),scanOn=Math.sin(Math.PI*scan);
+  ring.position.y=disc.position.y=lerp(-1.5,1.9,.5-.5*Math.cos(scan*Math.PI*3));
+  ringMat.opacity=scanOn*.95;discMat.opacity=scanOn*.07;
+
+  const kin=ease(range(p,.37,.52)),turn=ease(range(p,.52,.60));
+  key.visible=p>.36;key.position.z=lerp(6,FRONT-.05,kin);key.rotation.z=-turn*Math.PI/2;
+
+  const lift=range(p,.60,.66),swing=ease(range(p,.66,.78));
+  shackle.position.y=.6*(lift>0?back(lift):0)+Math.abs(wig)*.08*(1-released);
+  pivot.rotation.y=-swing*1.9;
+
+  tintOn+=(tintTarget-tintOn)*.08;
+  c.copy(RED).lerp(GREEN,released).lerp(tint,tintOn);rimA.color.copy(c);rimB.color.copy(c);
+  rimA.intensity=60+Math.sin(t*6)*12*(1-released)+80*Math.sin(Math.PI*range(p,.62,.8))+40*tintOn;
+  dustMat.color.copy(DRED).lerp(DGREEN,released).lerp(tint,tintOn*.8);
+  root.setProperty("--bg","#"+c.copy(BG0).lerp(BG1,released).getHexString());
+  root.setProperty("--glow","#"+c.copy(GL0).lerp(GL1,released).lerp(noTint.copy(tint).multiplyScalar(.45),tintOn).getHexString());
+  proj.copy(lock.position).project(camera);
+  root.setProperty("--gx",((proj.x*.5+.5)*100).toFixed(1)+"%");
+  root.setProperty("--gy",((-proj.y*.5+.5)*100).toFixed(1)+"%");
+
+  const agit=1-released,burst=Math.sin(Math.PI*range(p,.6,.9));
+  const cx=x*.7,cy=clamp(y,-2,2);
+  for(let i=0;i<N;i++){const d=seed[i];d.a+=dt*(.04+.25*released)*d.sp;
+    const r=d.r*(1+.45*burst)+Math.sin(t*9+d.ph)*.05*agit,k=Math.sqrt(1-d.u*d.u)*r;
+    pos[i*3]=cx+Math.cos(d.a)*k*1.4+Math.sin(t*13+d.ph)*.03*agit;
+    pos[i*3+1]=cy+d.u*r*.8;
+    pos[i*3+2]=Math.sin(d.a)*k-1.5}
+  dustGeo.attributes.position.needsUpdate=true;
+  renderer.render(scene,camera);
+}
+function clamp(v,a,b){return Math.min(b,Math.max(a,v))}
+frame();
+</script>
+</body>
+</html>
